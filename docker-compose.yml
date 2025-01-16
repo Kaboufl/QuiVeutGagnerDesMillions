@@ -25,5 +25,16 @@ services:
       - db
     command: sh -c "npm install && npm start"
 
+  apiDev:
+    image: node:lts
+    container_name: apiDev
+    ports:
+      - "3001:3000"
+    depends_on:
+      - db
+    volumes:
+      - ./serveur:/usr/src/app
+    command: sh -c "cd /usr/src/app && npm install && npm run watch"
+
 volumes:
   db_data:
