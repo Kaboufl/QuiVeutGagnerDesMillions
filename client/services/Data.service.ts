@@ -1,51 +1,16 @@
-import axios from 'axios';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-class DataService {
-    private baseURL: string;
+@Injectable({
+  providedIn: 'root',
+})
+export class DataService {
+  private baseURL = 'http://localhost:3000';
 
-    constructor() {
-        this.baseURL = 'localhost:3000'; 
-    }
+  constructor(private http: HttpClient) {}
 
-    async getData(endpoint: string) {
-        try {
-            const response = await axios.get(`${this.baseURL}/${endpoint}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            throw error;
-        }
-    }
-
-    async postData(endpoint: string, data: any) {
-        try {
-            const response = await axios.post(`${this.baseURL}/${endpoint}`, data);
-            return response.data;
-        } catch (error) {
-            console.error('Error posting data:', error);
-            throw error;
-        }
-    }
-
-    async putData(endpoint: string, data: any) {
-        try {
-            const response = await axios.put(`${this.baseURL}/${endpoint}`, data);
-            return response.data;
-        } catch (error) {
-            console.error('Error updating data:', error);
-            throw error;
-        }
-    }
-
-    async deleteData(endpoint: string) {
-        try {
-            const response = await axios.delete(`${this.baseURL}/${endpoint}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error deleting data:', error);
-            throw error;
-        }
-    }
+  getData(endpoint: string): Observable<any> {
+    return this.http.get(`${this.baseURL}/${endpoint}`);
+  }
 }
-
-export default new DataService();

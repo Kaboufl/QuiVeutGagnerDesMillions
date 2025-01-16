@@ -1,18 +1,34 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { DataService } from '../../services/Data.service';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
-import { DataService } from '../../services/Data.service'
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
-  imports: [HlmButtonDirective],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css'], 
+  imports: [HlmButtonDirective],
 })
 export class AppComponent {
   title = 'client';
 
-  constructor(DataService : DataService){
+  constructor(private dataService: DataService) {}
+
+  ondataclick() {
+    console.log('je récupère le clic');
+
+    const observer = {
+      next: (data: any) => {
+        console.log('Données récupérées :', data);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de la récupération des données :', error);
+      },
+      complete: () => {
+        console.log('Données récupérées avec succès.');
+      },
+    };
+
+    this.dataService.getData('').subscribe(observer);
   }
 }
-
