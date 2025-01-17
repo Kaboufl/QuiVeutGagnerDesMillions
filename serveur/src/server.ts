@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import http from 'http';
 
 import { db } from './db/db';
+import { randomBytes } from 'crypto';
 
 const app = express();
 const port = 3000;
@@ -26,6 +27,18 @@ app.get('/', cors(), (req: Request, res: Response) => {
     res.json({ message: `Hello World!` });
 });
 
+app.post('/request-room', (req: Request, res: Response) => {
+    const roomName = randomBytes(3).toString('hex').substring(0, 5).toUpperCase();
+
+    db('rooms').insert({
+        "room_id": roomName
+    }).then((result) => {
+        console.log(result)
+    });
+
+    res.json({ roomName });
+})
+
 io.on('connection', (socket) => {
   console.log('a user connected');
 
@@ -46,6 +59,24 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
       console.log('user disconnected');
   });
+
+  socket.on('join-lobby', async ({ lobbyId }) => {
+    const room = await db('rooms').where('room_id', lobbyId).first();
+
+    console.log(room)
+
+    if (room) {
+        socket.join(lobbyId)
+        console.log(`User joined with code ${lobbyId}`);
+        socket.emit('roomData', { 
+            message: `Joined room ${lobbyId}`,
+            lobbyId            
+        })
+    } else {
+        socket.emit('no-room', { message: 'no such room' });
+    }
+
+  })
 });
 
 
