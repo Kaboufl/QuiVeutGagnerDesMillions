@@ -62,3 +62,23 @@ color-scheme: dark;
 @apply border-border;
 }
 }
+
+.answer-button {
+    clip-path: polygon(80% 0, 100% 50%, 80% 100%, 20% 100%, 0 50%, 20% 0);
+    border: 1px solid white;
+    background: white;
+}
+.answer-button span {
+    display: block;
+    padding: 0.35rem 2rem;
+    clip-path: polygon(80% 0, 100% 50%, 80% 100%, 20% 100%, 0 50%, 20% 0);
+    color: white;
+    height: 100%;
+    width: 100%;
+    background: rgb(104,92,168);
+    background: radial-gradient(circle, rgba(104,92,168,1) 0%, rgba(32,33,98,1) 78%, rgba(0,0,0,1) 100%); 
+    transition: all 0.5s;
+}
+.answer-button:hover span {
+    clip-path: polygon(78% 5%, 97% 50%, 78% 95%, 22% 95%, 3% 50%, 22% 5%);
+}
