@@ -1,7 +1,7 @@
 <div class="flex flex-col items-center justify-between gap-8">
     <img class="size-64" src="assets/images/Logo-Qui-veut-gagner-des-millions.png" alt="">
 
-    <div class="grid grid-cols-2 gap-5" *ngIf="!createLobby && !joinLobby">
+    <div class="grid grid-cols-2 gap-5" *ngIf="!createLobby && !joinLobby && !loadingQuestion">
         <button class="answer-button" (click)="onCreateLobbyClick()">
             <span>Créer un salon</span>
         </button>
@@ -13,11 +13,15 @@
 
     <div *ngIf="createLobby">
         <!-- Contenu pour créer un salon -->
-        <app-create-lobby></app-create-lobby>
+        <app-create-lobby (createRoomEvent)="onCreateRoom($event)"></app-create-lobby>
     </div>
 
     <div *ngIf="joinLobby">
         <!-- Contenu pour rejoindre un salon -->
-        <p>Rejoindre un salon en cours...</p>
+         <app-join-lobby (JoiningRoom)="onJoinRoom($event)"></app-join-lobby>
+    </div>
+
+    <div *ngIf="loadingQuestion">
+        <app-loading-question [roomName]="this.roomName" [idQuestionnaire]="this.questionnaireId"></app-loading-question>
     </div>
 </div>
