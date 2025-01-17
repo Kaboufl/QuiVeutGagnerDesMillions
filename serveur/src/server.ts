@@ -13,9 +13,7 @@ const corsOptions = {
 }
 
 app.get('/', cors(), (req: Request, res: Response) => {
-    db.table('users').where('id', 1).first().then((user) => {
-        res.json({ message: `Hello World! ${user?.name}` });
-    });
+    res.json({ message: `Hello World!` });    
 })
 
 app.listen(port, () => {
