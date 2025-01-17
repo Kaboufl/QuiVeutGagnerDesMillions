@@ -21,9 +21,13 @@ export class JoinLobbyComponent implements OnInit {
     if (inputElement) {
       this.newRoomName = inputElement.value;
     }
-    this.SocketService.sendRoom(this.newRoomName,"1");
-    console.log(this.newRoomName, "je rejoins la salle");
-
-    this.JoiningRoom.emit({ roomName: this.newRoomName, questionnaireId: '1' });
+    //this.SocketService.sendRoom(this.newRoomName,"1");
+    this.SocketService.joinLobby(this.newRoomName)
+      .subscribe({
+        error: (err) => {console.error(err)},
+        next: (value) => {
+          this.JoiningRoom.emit({ roomName: value.lobbyId, questionnaireId: '1' })
+        }
+      })
   }
 }

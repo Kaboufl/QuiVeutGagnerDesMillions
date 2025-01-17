@@ -16,12 +16,16 @@ export class SocketService {
     this.socket.emit('room', { roomName, questionnaireId });
   }
 
-  listenRoomData() {
+  joinLobby(lobbyId: string): Observable<any> {
     return new Observable((observer) => {
-      this.socket.on('roomData', (data: any) => {
-        console.log('Données de la salle reçues :', data);
-        observer.next(data);  // Envoie les données aux abonnés
-      });
+      this.socket.emit('join-lobby', { lobbyId })
+        .on('no-room', (data) => {
+          observer.error(data.message)
+        })
+        .on('roomData', (data: any) => {
+          console.log('Données de la salle reçues :', data);
+          observer.next(data);  // Envoie les données aux abonnés        
+        })
     });
   }
 }
