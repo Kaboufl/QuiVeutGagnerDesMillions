@@ -1,13 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SocketService } from '../../../../services/Socket.service';
 import { GameService } from '../../../../services/Game.service';
 
 @Component({
   selector: 'app-lobby',
-  imports: [],
   templateUrl: './lobby.component.html',
-  styleUrl: './lobby.component.css'
+  styleUrls: ['./lobby.component.css']
 })
 export class LobbyComponent implements OnInit {
 
@@ -21,12 +19,16 @@ export class LobbyComponent implements OnInit {
 
     this.gameService.joinLobby(lobbyId!)
       .subscribe({
+        next: (data) => {
+          console.log('Lobby data:', data);
+        },
         error: (err) => { 
           console.error(err);
           this.gameService.disconnect();
           this.router.navigate(['/']);
         }
       });
-    console.log(lobbyId);
+      
+    console.log('Lobby ID:', lobbyId);
   }
 }

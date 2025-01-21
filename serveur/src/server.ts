@@ -57,41 +57,49 @@ io.on('connection', (socket) => {
     });
 
     socket.on('join-lobby', async ({ lobbyId, username }) => {
-        console.log(lobbyId)
+        console.log(`Lobby ID: ${lobbyId}`);
+    
         const lobbyRequest = db('rooms').where('room_id', lobbyId);
         const lobby = await lobbyRequest.first();
-
-
+    
         if (lobby && username) {
             socket.join(lobbyId);
-            const playerId = await db('players').returning('id')
+    
+            const existingPlayers = await db('players').where('room_id', lobbyId);
+            const isMaster = existingPlayers.length === 0; // Le premier joueur devient le maître.
+    
+            // Ajout du joueur à la base de données
+            const [playerId] = await db('players')
+                .returning('id')
                 .insert({
-                    "room_id": lobbyId,
-                    "username": username,
-                    "user_identifier": socket.id
-                })
-
-            if (!lobby.master_id) {
-                await lobbyRequest.update({ master_id: playerId });
-                console.log(`User ${username} with socketID ${socket.id} is now the master of the room ${lobby.id}`);
-            }
-
+                    room_id: lobbyId,
+                    username: username,
+                    user_identifier: socket.id,
+                    is_master: isMaster,
+                });
+    
+            console.log(`User ${username} joined lobby ${lobbyId}`);
+    
             const playerIds = Array.from(io.sockets.adapter.rooms.get(lobbyId) || []);
-            console.log('players IDs', playerIds);
-            const players = playerIds.map(async (client) => {
-                return await db('players').where('user_identifier', client).first();
-            })
-
-            console.log(`User ${username} joined with code ${lobbyId}`);
-            socket.emit('roomData', { 
-                message: `Joined room ${lobbyId}`,
-                players,
-                lobbyId            
-            })
+            const players = await Promise.all(
+                playerIds.map(async (clientId) => {
+                    return await db('players').where('user_identifier', clientId).first();
+                })
+            );
+    
+            console.log('Current players in lobby:', players);
+    
+            io.to(lobbyId).emit('roomData', {
+                message: `User ${username} joined the room`,
+                players, 
+                lobbyId,
+            });
         } else {
-            socket.emit('no-room', { message: 'no such room' });
+            socket.emit('no-room', { message: 'No such room' });
         }
     });
+    
+    
 
     socket.on('disconnect', async () => {
         const request = db('players').where('user_identifier', socket.id);
