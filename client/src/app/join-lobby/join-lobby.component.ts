@@ -1,5 +1,6 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { SocketService } from '../../../services/Socket.service';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { GameService } from '../../../services/Game.service';
 
 @Component({
   selector: 'app-join-lobby',
@@ -7,27 +8,18 @@ import { SocketService } from '../../../services/Socket.service';
   templateUrl: './join-lobby.component.html',
   styleUrl: './join-lobby.component.css'
 })
-export class JoinLobbyComponent implements OnInit {
+export class JoinLobbyComponent {
+
+  private readonly router = inject(Router);
   
-  @Output() JoiningRoom = new EventEmitter<{ roomName: string, questionnaireId: string }>();  
-
-  newRoomName: string = '';
-  constructor(private SocketService : SocketService) {}
-
-  ngOnInit(): void {}
+  public lobbyId: string = '';
+  constructor(private gameService: GameService) {}
 
   onJoinLobbyClick() {
     const inputElement = document.querySelector('input') as HTMLInputElement;
     if (inputElement) {
-      this.newRoomName = inputElement.value;
+      this.lobbyId = inputElement.value;
     }
-    //this.SocketService.sendRoom(this.newRoomName,"1");
-    this.SocketService.joinLobby(this.newRoomName)
-      .subscribe({
-        error: (err) => {console.error(err)},
-        next: (value) => {
-          this.JoiningRoom.emit({ roomName: value.lobbyId, questionnaireId: '1' })
-        }
-      })
+    this.router.navigate(['game', this.lobbyId])
   }
 }
