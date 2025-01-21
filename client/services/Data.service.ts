@@ -13,4 +13,8 @@ export class DataService {
   getData(endpoint: string): Observable<any> {
     return this.http.get(`${this.baseURL}/${endpoint}`);
   }
+
+  requestLobby(): Observable<any> {
+    return this.http.post(`${this.baseURL}/request-room`, {});
+  }
 }
