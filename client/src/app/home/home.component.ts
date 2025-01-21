@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../../services/Data.service';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
@@ -6,6 +6,8 @@ import { CreateLobbyComponent } from '../create-lobby/create-lobby.component';
 import { SocketService } from '../../../services/Socket.service';
 import { JoinLobbyComponent } from "../join-lobby/join-lobby.component";
 import { LoadingQuestionComponent } from "../loading-question/loading-question.component";
+import { GameService } from '../../../services/Game.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -15,42 +17,29 @@ import { LoadingQuestionComponent } from "../loading-question/loading-question.c
 })
 
 export class HomeComponent {
+  private readonly router = inject(Router);
   public createLobby: boolean = false
   public joinLobby: boolean = false
   public loadingQuestion: boolean = false
   roomName: string = '';
   questionnaireId: string = '';
 
-  constructor(private dataService: DataService, private SocketService : SocketService) {}
+  constructor(private gameService: GameService) {}
 
   onCreateLobbyClick() {
-    this.createLobby = true;
-    this.joinLobby = false;
-    this.loadingQuestion = false;
+    this.gameService.createLobby()
+      .subscribe({
+        next: val => {
+          console.log(this.gameService.lobbyId);
+          this.router.navigate(['game', this.gameService.lobbyId]);
+        }
+      });
   }
 
   onJoinLobbyClick() {
     this.createLobby = false;
     this.joinLobby = true;
     this.loadingQuestion = false;
-  }
-
-  ondataclick() {
-    console.log('je récupère le clic');
-
-    const observer = {
-      next: (data: any) => {
-        console.log('Données récupérées :', data);
-      },
-      error: (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
-      },
-      complete: () => {
-        console.log('Données récupérées avec succès.');
-      },
-    };
-
-    this.dataService.getData('').subscribe(observer);
   }
 
   onCreateRoom($event: { roomName: string; questionnaireId: string }): void {
