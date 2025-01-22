@@ -12,6 +12,7 @@ export class SocketService {
   constructor() {
     this.socketUrl = 'http://localhost:3001';
     this.socket = io(this.socketUrl, { autoConnect: false });
+    
   }
 
   sendRoom(roomName: string, questionnaireId: string) {
@@ -29,10 +30,29 @@ export class SocketService {
           console.log('Données de la salle reçues :', data);
           observer.next(data);  // Envoie les données aux abonnés        
         })
+        .on('playerInfo', (data: any) => {
+          console.log('Informations du joueur reçues :', data);
+          observer.next(data);  // Envoie les données aux abonnés
+        }
+        );
     });
   }
 
   disconnect() {
     this.socket.disconnect();
   }
+  
+  listenToRoomClosed(): Observable<any> {
+    return new Observable((observer) => {
+      this.socket.on('room-closed', (data: any) => {
+        console.log('La salle a été fermée :', data);
+        observer.next(data);
+        observer.complete(); 
+      });
+      return () => {
+        this.socket.off('room-closed');
+      };
+    });
+  }
+  
 }

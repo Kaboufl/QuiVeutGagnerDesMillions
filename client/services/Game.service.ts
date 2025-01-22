@@ -16,7 +16,7 @@ export class GameService {
     constructor(
         private socketService: SocketService,
         private apiService: DataService
-    ) {}
+    ) { }
 
     createLobby(): Observable<any> {
         return this.apiService.requestLobby()
@@ -38,5 +38,10 @@ export class GameService {
 
     disconnect() {
         this.socketService.disconnect()
+    }
+
+    listenToRoomClosed(): Observable<any> {
+        return this.socketService.listenToRoomClosed()
+            .pipe(tap(x => console.log(x)))
     }
 }

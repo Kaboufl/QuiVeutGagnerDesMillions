@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../../services/Data.service';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
   styleUrl: './home.component.css'
 })
 
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   private readonly router = inject(Router);
   public createLobby: boolean = false
   public joinLobby: boolean = false
@@ -25,6 +25,10 @@ export class HomeComponent {
   questionnaireId: string = '';
 
   constructor(private gameService: GameService) {}
+
+  ngOnInit(): void {
+    console.log('HomeComponent initialized');
+  }
 
   onCreateLobbyClick() {
     this.gameService.createLobby()

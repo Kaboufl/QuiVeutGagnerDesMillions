@@ -104,15 +104,28 @@ io.on('connection', (socket) => {
     socket.on('disconnect', async () => {
         const request = db('players').where('user_identifier', socket.id);
         const player = await request.first();
-        
+    
         if (player !== undefined) {
-            request.delete().then((res) => {
-                console.log(`${player.username} disconnected from room ${player.room_id}`)
-            })
+            await request.delete();
+            console.log(`${player.username} disconnected from room ${player.room_id}`);
         } else {
-            console.log(`User with ID ${socket.id} disconnected, but was not enlisted in a room`)
+            console.log(`User with ID ${socket.id} disconnected, but was not enlisted in a room`);
+        }
+    
+        if (player && player.is_master) {
+            const roomId = player.room_id;
+    
+            await db('players').where('room_id', roomId).delete();
+    
+            await db('rooms').where('room_id', roomId).delete();
+    
+            io.to(roomId).emit('room-closed', {
+                message: 'The master player has disconnected. The room has been closed.'
+            });
+            console.log(`Room ${roomId} has been closed because the master player disconnected.`);
         }
     });
+    
 });
 
 
