@@ -12,6 +12,9 @@ export class GameService {
 
     public lobbyId: string = '';
     public players: Player[] = [];
+    public master!: Player;
+
+    public username: string = '';
 
     constructor(
         private socketService: SocketService,
@@ -21,19 +24,22 @@ export class GameService {
     createLobby(): Observable<any> {
         return this.apiService.requestLobby()
             .pipe(
-                tap({
-                    error: err => console.error(err),
-                    next: response => {
-                        this.lobbyId = response.roomName;
-                        return this.joinLobby(response.roomName).subscribe();
-                    }
+                tap(data => {
+                    console.log("Create lobby data:", data)
+                    this.lobbyId = data.lobbyId
                 })
             )
     }
 
     joinLobby(lobbyId: string): Observable<any> {
-        return this.socketService.joinLobby(lobbyId, 'testUser')
-            .pipe(tap(x => console.log(x)))
+        return this.socketService.joinLobby(lobbyId, this.username)
+            .pipe(tap(data => {
+                this.players = data.players
+                    .filter((player: Player) => !player.is_master)
+                    .map((player: Player) => player);
+                this.master = data.players.find((player: Player) => player.is_master)
+            }
+        ))
     }
 
     disconnect() {

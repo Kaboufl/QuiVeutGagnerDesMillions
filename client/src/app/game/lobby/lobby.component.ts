@@ -1,22 +1,26 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from '../../../../services/Game.service';
 import { Subscription } from 'rxjs';
 import Player from '../../../../models/player';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
   styleUrls: ['./lobby.component.css'],
-  imports : [CommonModule]
+  imports : [CommonModule, FormsModule]
 })
 export class LobbyComponent implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private roomClosedSubscription: Subscription | null = null;
+
+  public username: string = '';
+
   public players: Player[] = [];
+  public master!: Player;
 
   constructor(private gameService: GameService) {}
 
@@ -38,7 +42,8 @@ export class LobbyComponent implements OnInit {
       .subscribe({
         next: (data) => {
           console.log('Lobby data:', data);
-          this.players = data.players;
+          this.players = this.gameService.players;
+          this.master = this.gameService.master;
         },
         error: (err) => { 
           console.error(err);

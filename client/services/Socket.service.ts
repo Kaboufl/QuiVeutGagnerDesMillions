@@ -27,7 +27,7 @@ export class SocketService {
           observer.error(data.message)
         })
         .on('roomData', (data: any) => {
-          console.log('Données de la salle reçues :', data);
+          // console.log('Données de la salle reçues :', data);
           observer.next(data);  // Envoie les données aux abonnés        
         })
         .on('playerInfo', (data: any) => {

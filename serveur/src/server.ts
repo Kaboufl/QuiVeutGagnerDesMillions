@@ -36,7 +36,7 @@ app.post('/request-room', (req: Request, res: Response) => {
         console.log(result)
     });
 
-    res.json({ roomName });
+    res.json({ "lobbyId": roomName });
 })
 
 io.on('connection', (socket) => {

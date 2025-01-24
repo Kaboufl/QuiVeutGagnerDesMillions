@@ -7,7 +7,11 @@ module.exports = {
     './libs/**/*.{html,ts}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'copperplate': ['Copperplate Gothic Std', 'serif']
+      }
+    },
   },
   plugins: [],
 };
