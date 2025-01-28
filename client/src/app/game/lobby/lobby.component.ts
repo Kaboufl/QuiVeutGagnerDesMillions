@@ -1,16 +1,17 @@
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from '../../../../services/Game.service';
-import { Subscription } from 'rxjs';
+import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import Player from '../../../../models/player';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
   styleUrls: ['./lobby.component.css'],
-  imports : [CommonModule, FormsModule]
+  imports : [CommonModule, FormsModule, HlmButtonDirective, HlmInputDirective]
 })
 export class LobbyComponent implements OnInit {
 
@@ -18,6 +19,7 @@ export class LobbyComponent implements OnInit {
   private readonly router = inject(Router);
 
   public username: string = '';
+  public isLobbyJoined: boolean = false;
 
   public players: Player[] = [];
   public master!: Player;
@@ -37,25 +39,29 @@ export class LobbyComponent implements OnInit {
     });
 
     const lobbyId = this.route.snapshot.paramMap.get('lobby_id');
+    this.gameService.lobbyId = lobbyId || '';
+      
+    console.log('Lobby ID:', lobbyId);
+  }
 
-    this.gameService.joinLobby(lobbyId!)
+  joinLobby() {
+    this.gameService.joinLobby(this.gameService.lobbyId, this.username)
       .subscribe({
         next: (data) => {
-          console.log('Lobby data:', data);
+          console.log('Join lobby data:', data);
+          this.isLobbyJoined = true;
           this.players = this.gameService.players;
           this.master = this.gameService.master;
         },
-        error: (err) => { 
+        error: (err) => {
           console.error(err);
           this.gameService.disconnect();
           this.router.navigate(['/']);
         }
       });
-      
-    console.log('Lobby ID:', lobbyId);
   }
 
-  listenToRoomClosed(): void {
-
+  logPlayer() {
+    console.log(this.gameService.player());
   }
 }

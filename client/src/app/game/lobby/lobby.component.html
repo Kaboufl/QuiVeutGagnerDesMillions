@@ -1,25 +1,38 @@
 <div class="flex flex-col items-center justify-center gap-8 p-8 bg-[#685ca880] backdrop-blur-xl text-white rounded-lg shadow-md">
     <img class="w-32 h-32 object-contain" src="assets/images/Logo-Qui-veut-gagner-des-millions.png" alt="Logo">
 
-    <div *ngIf="master">
-        Présenté par <span class="font-bold">{{ master.username }}</span>
+    <div class="w-full flex flex-col items-stretch justify-center" [ngSwitch]="isLobbyJoined">
+        <div *ngSwitchCase="false" class="flex flex-row justify-center items-center gap-4">
+            <div>
+                <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Saisissez votre nom d'utilisateur</label>
+                <input hlmInput type="text" id="username" [(ngModel)]="username" placeholder="John" required />
+            </div>
+            <button hlmBtn (click)="joinLobby()">Rejoindre la partie</button>
+        </div>
+        <div *ngSwitchCase="true" class="flex flex-col items-center justify-center gap-4">
+            <div *ngIf="master" (click)="logPlayer()">
+                Présenté par <span class="font-bold">{{ master.username }}</span>
+            </div>
+        
+            <div class="flex items-center justify-center text-orange-600 w-full font-copperplate">
+                <h3 class="text-3xl font-semibold">
+                    <span [ngPlural]="players.length">
+                        <ng-template ngPluralCase="0">Aucun joueur connecté</ng-template>
+                        <ng-template ngPluralCase="1">Un joueur connecté</ng-template>
+                        <ng-template ngPluralCase="other">{{ players.length }} joueurs connectés</ng-template>
+                    </span>
+                </h3>
+            </div>
+            
+            <ul class="players-list w-full space-y-4 flex flex-col items-center">
+                <li *ngFor="let player of players" class="">
+                    <div class="player-info answer-button flex items-center space-x-4">
+                        <span class="player-username text-xl font-bold">{{ player.username }}</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 
-    <div class="flex items-center justify-center text-orange-600 w-full font-copperplate">
-        <h3 class="text-3xl font-semibold">
-            <span [ngPlural]="players.length">
-                <ng-template ngPluralCase="0">Aucun joueur connecté</ng-template>
-                <ng-template ngPluralCase="1">Un joueur connecté</ng-template>
-                <ng-template ngPluralCase="other">{{ players.length }} joueurs connectés</ng-template>
-            </span>
-        </h3>
-    </div>
     
-    <ul class="players-list w-full space-y-4 flex flex-col items-center">
-        <li *ngFor="let player of players" class="">
-            <div class="player-info answer-button flex items-center space-x-4">
-                <span class="player-username text-xl font-bold">{{ player.username }}</span>
-            </div>
-        </li>
-    </ul>
 </div>

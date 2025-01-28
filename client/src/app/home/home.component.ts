@@ -25,7 +25,6 @@ export class HomeComponent implements OnInit {
   roomName: string = '';
   questionnaireId: string = '';
 
-  public username: string = '';
 
   constructor(private gameService: GameService) {}
 
@@ -34,7 +33,6 @@ export class HomeComponent implements OnInit {
   }
 
   onCreateLobbyClick() {
-    this.gameService.username = this.username;
     this.gameService.createLobby()
       .subscribe({
         next: val => {
@@ -47,7 +45,6 @@ export class HomeComponent implements OnInit {
   }
 
   onJoinLobbyClick() {
-    this.gameService.username = this.username;
     this.createLobby = false;
     this.joinLobby = true;
     this.loadingQuestion = false;
