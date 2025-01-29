@@ -1,23 +1,31 @@
 <div class="flex flex-col items-center justify-center gap-8 p-8 bg-blue-600 text-white rounded-lg shadow-md">
     <img class="w-32 h-32 object-contain mb-4" src="assets/images/Logo-Qui-veut-gagner-des-millions.png" alt="Logo">
-
+    
     <div class="flex items-center justify-between w-full">
-        <h3 class="text-3xl font-semibold">Lobby de Jeu</h3>
-        <button class="text-white hover:text-gray-300 text-2xl" (click)="''">
-            <i class="fas fa-cogs"></i>
-        </button>
+      <h3 class="text-3xl font-semibold">Lobby de Jeu</h3>
+      <!-- Icône d'engrenage avec une action -->
+      <i *ngIf="currentplayer.is_master" class="fas fa-cogs text-white text-3xl cursor-pointer" (click)="toggleSettingsPopup()"></i>
     </div>
-
+    
     <ul class="players-list w-full space-y-4">
-        <li *ngFor="let player of players" class="player-item bg-gray-800 p-4 rounded-lg shadow-lg flex justify-between items-center transition-all hover:bg-gray-700 hover:scale-105">
-            <div class="player-info flex items-center space-x-4">
-                <span class="player-username text-xl font-bold">{{ player.username }}</span>
-                <span class="player-status py-1 px-3 text-sm rounded-full"
-                    [ngClass]="{'bg-green-500 text-white': player.is_master, 'bg-red-500 text-white': !player.is_master}">
-                    {{ player.is_master ? 'Master' : 'Joueur' }}
-                </span>
-            </div>
-            <div class="player-id text-sm text-gray-300">ID: {{ player.id }}</div>
-        </li>
+      <li *ngFor="let player of players" class="player-item bg-gray-800 p-4 rounded-lg shadow-lg flex justify-between items-center transition-all hover:bg-gray-700 hover:scale-105">
+        <div class="player-info flex items-center space-x-4">
+          <span class="player-username text-xl font-bold">{{ player.username }}</span>
+          <span class="player-status py-1 px-3 text-sm rounded-full"
+                [ngClass]="{'bg-green-500 text-white': player.is_master, 'bg-red-500 text-white': !player.is_master}">
+            {{ player.is_master ? 'Master' : 'Joueur' }}
+          </span>
+        </div>
+        <div class="player-id text-sm text-gray-300">ID: {{ player.user_identifier }}</div>
+      </li>
     </ul>
-</div>
+  
+    <!-- QR Code sans texte au-dessus -->
+    <div class="mt-8 flex justify-center items-center">
+      <img [src]="qrCodeUrl" alt="QR Code pour rejoindre le lobby" class="w-48 h-48 rounded-lg shadow-lg border-4 border-blue-500">
+    </div>
+  </div>
+  
+  <!-- Appel au composant de la popup -->
+  <app-popup-edit-game [showSettingsPopup]="showSettingsPopup" (closePopup)="toggleSettingsPopup()"></app-popup-edit-game>
+  

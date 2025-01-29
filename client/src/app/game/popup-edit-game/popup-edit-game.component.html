@@ -1,0 +1,8 @@
+<div *ngIf="showSettingsPopup" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-80 transition-all transform duration-500 ease-in-out opacity-0 scale-95"
+         [class.opacity-100]="showSettingsPopup" [class.scale-100]="showSettingsPopup">
+      <h2 class="text-2xl font-semibold mb-4">Édition du Jeu</h2>
+      <button (click)="close()" class="bg-red-500 text-white px-4 py-2 rounded-md w-full">Fermer</button>
+    </div>
+  </div>
+  

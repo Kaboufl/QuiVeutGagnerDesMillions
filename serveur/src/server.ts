@@ -68,7 +68,6 @@ io.on('connection', (socket) => {
             const existingPlayers = await db('players').where('room_id', lobbyId);
             const isMaster = existingPlayers.length === 0; // Le premier joueur devient le maître.
     
-            // Ajout du joueur à la base de données
             const [playerId] = await db('players')
                 .returning('id')
                 .insert({
@@ -79,6 +78,14 @@ io.on('connection', (socket) => {
                 });
     
             console.log(`User ${username} joined lobby ${lobbyId}`);
+    
+            socket.emit('player-info', {
+                room_id: lobbyId,
+                username: username,
+                user_identifier: socket.id,
+                is_master: isMaster
+            });
+            
     
             const playerIds = Array.from(io.sockets.adapter.rooms.get(lobbyId) || []);
             const players = await Promise.all(
@@ -91,7 +98,7 @@ io.on('connection', (socket) => {
     
             io.to(lobbyId).emit('roomData', {
                 message: `User ${username} joined the room`,
-                players, 
+                players,
                 lobbyId,
             });
         } else {

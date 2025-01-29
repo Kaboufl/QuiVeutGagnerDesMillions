@@ -21,22 +21,32 @@ export class SocketService {
 
   joinLobby(lobbyId: string, username: string): Observable<any> {
     this.socket.connect();
+    
     return new Observable((observer) => {
-      this.socket.emit('join-lobby', { lobbyId, username })
-        .on('no-room', (data) => {
-          observer.error(data.message)
-        })
-        .on('roomData', (data: any) => {
-          console.log('Données de la salle reçues :', data);
-          observer.next(data);  // Envoie les données aux abonnés        
-        })
-        .on('playerInfo', (data: any) => {
-          console.log('Informations du joueur reçues :', data);
-          observer.next(data);  // Envoie les données aux abonnés
-        }
-        );
+      this.socket.emit('join-lobby', { lobbyId, username });
+  
+      this.socket.on('no-room', (data) => {
+        observer.error(data.message);
+      });
+  
+      this.socket.on('roomData', (data: any) => {
+        console.log('Données de la salle reçues :', data);
+        observer.next({ type: 'roomData', data });
+      });
+  
+      this.socket.on('player-info', (data: any) => {
+        console.log('Informations du joueur reçues :', data);
+        observer.next({ type: 'playerInfo', data });
+      });
+  
+      return () => {
+        this.socket.off('no-room');
+        this.socket.off('roomData');
+        this.socket.off('player-info');
+      };
     });
   }
+  
 
   disconnect() {
     this.socket.disconnect();
