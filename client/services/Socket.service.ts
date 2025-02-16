@@ -10,7 +10,7 @@ export class SocketService {
   private socketUrl: string;
 
   constructor() {
-    this.socketUrl = 'http://localhost:3001';
+    this.socketUrl = 'http://localhost:4200';
     this.socket = io(this.socketUrl, { autoConnect: false });
     
   }
