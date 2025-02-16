@@ -1,27 +1,33 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from '../../../../services/Game.service';
-import { Subscription } from 'rxjs';
+import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import Player from '../../../../models/player';
-import { CommonModule } from '@angular/common';
 import QRCode from 'qrcode';
 import { PopupEditGameComponent } from '../popup-edit-game/popup-edit-game.component';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
   styleUrls: ['./lobby.component.css'],
-  imports : [CommonModule,PopupEditGameComponent]
+  imports : [CommonModule, PopupEditGameComponent, FormsModule, HlmButtonDirective, HlmInputDirective]
 })
 export class LobbyComponent implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private roomClosedSubscription: Subscription | null = null;
+
+  public username: string = '';
+  public isLobbyJoined: boolean = false;
+
   public players: Player[] = [];
   public currentplayer!: Player;
   public showSettingsPopup = false; // Etat pour gérer l'affichage de la popup
   public qrCodeUrl: string = '';  // URL pour le QR code
+  public master!: Player;
 
   constructor(private gameService: GameService) {}
 
@@ -38,27 +44,8 @@ export class LobbyComponent implements OnInit {
     });
 
     const lobbyId = this.route.snapshot.paramMap.get('lobby_id');
-
-    this.gameService.joinLobby(lobbyId!).subscribe({
-      next: (data) => {
-        if (data.type === 'roomData') {
-          console.log('Données de la salle:', data.data);
-          this.players = data.data.players;
-        } else if (data.type === 'playerInfo') {
-          console.log('Informations du joueur:', data.data);
-          this.currentplayer = data.data;
-        }
-
-        // Générer l'URL pour le QR code
-        this.generateQrCodeUrl(lobbyId!);
-      },
-      error: (err) => { 
-        console.error(err);
-        this.gameService.disconnect();
-        this.router.navigate(['/']);
-      }
-    });
-
+    this.gameService.lobbyId = lobbyId || '';
+      
     console.log('Lobby ID:', lobbyId);
   }
 
@@ -79,6 +66,24 @@ export class LobbyComponent implements OnInit {
     this.showSettingsPopup = !this.showSettingsPopup;
   }
 
-  listenToRoomClosed(): void {
+  joinLobby() {
+    this.gameService.joinLobby(this.gameService.lobbyId, this.username)
+      .subscribe({
+        next: (data) => {
+          console.log('Join lobby data:', data);
+          this.isLobbyJoined = true;
+          this.players = this.gameService.players;
+          this.master = this.gameService.master;
+        },
+        error: (err) => {
+          console.error(err);
+          this.gameService.disconnect();
+          this.router.navigate(['/']);
+        }
+      });
+  }
+
+  logPlayer() {
+    console.log(this.gameService.player());
   }
 }

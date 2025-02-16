@@ -10,7 +10,7 @@ export class SocketService {
   private socketUrl: string;
 
   constructor() {
-    this.socketUrl = 'http://localhost:3001';
+    this.socketUrl = 'http://localhost:4200';
     this.socket = io(this.socketUrl, { autoConnect: false });
     
   }
@@ -23,27 +23,30 @@ export class SocketService {
     this.socket.connect();
     
     return new Observable((observer) => {
-      this.socket.emit('join-lobby', { lobbyId, username });
   
       this.socket.on('no-room', (data) => {
         observer.error(data.message);
       });
-  
-      this.socket.on('roomData', (data: any) => {
-        console.log('Données de la salle reçues :', data);
-        observer.next({ type: 'roomData', data });
-      });
-  
-      this.socket.on('player-info', (data: any) => {
+      this.socket.emit('join-lobby', { lobbyId, username })
+      .on('no-room', (data) => {
+        observer.error(data.message)
+      })
+      .on('roomData', (data: any) => {
+        // console.log('Données de la salle reçues :', data);
+        observer.next(data);  // Envoie les données aux abonnés        
+      })
+      .on('playerInfo', (data: any) => {
         console.log('Informations du joueur reçues :', data);
-        observer.next({ type: 'playerInfo', data });
-      });
+        observer.next(data);  // Envoie les données aux abonnés
+      }
+      );
   
       return () => {
         this.socket.off('no-room');
         this.socket.off('roomData');
         this.socket.off('player-info');
       };
+      
     });
   }
   

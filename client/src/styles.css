@@ -58,9 +58,9 @@ color-scheme: dark;
 
 
 @layer base {
-* {
-@apply border-border;
-}
+    * {
+    @apply border-border;
+    }
 }
 
 .answer-button {

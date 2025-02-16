@@ -11,17 +11,8 @@
         </button>
     </div>
 
-    <div *ngIf="createLobby">
-        <!-- Contenu pour créer un salon -->
-        <app-create-lobby (createRoomEvent)="onCreateRoom($event)"></app-create-lobby>
-    </div>
-
     <div *ngIf="joinLobby">
         <!-- Contenu pour rejoindre un salon -->
          <app-join-lobby ></app-join-lobby>
-    </div>
-
-    <div *ngIf="loadingQuestion">
-        <app-loading-question [roomName]="this.roomName" [idQuestionnaire]="this.questionnaireId"></app-loading-question>
     </div>
 </div>

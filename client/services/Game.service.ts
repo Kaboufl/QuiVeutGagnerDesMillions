@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { computed, Injectable } from "@angular/core";
 import { SocketService } from "./Socket.service";
 import Player from "../models/player";
 import { Observable, tap } from "rxjs";
@@ -12,6 +12,10 @@ export class GameService {
 
     public lobbyId: string = '';
     public players: Player[] = [];
+    public master!: Player;
+    public player = computed(() => this.players.find(player => player.username === this.username));
+
+    public username: string = '';
 
     constructor(
         private socketService: SocketService,
@@ -21,19 +25,23 @@ export class GameService {
     createLobby(): Observable<any> {
         return this.apiService.requestLobby()
             .pipe(
-                tap({
-                    error: err => console.error(err),
-                    next: response => {
-                        this.lobbyId = response.roomName;
-                        return this.joinLobby(response.roomName).subscribe();
-                    }
+                tap(data => {
+                    console.log("Create lobby data:", data)
+                    this.lobbyId = data.lobbyId
                 })
             )
     }
 
-    joinLobby(lobbyId: string): Observable<any> {
-        return this.socketService.joinLobby(lobbyId, 'testUser')
-            .pipe(tap(x => console.log(x)))
+    joinLobby(lobbyId: string, username: string): Observable<any> {
+        this.username = username;
+        return this.socketService.joinLobby(lobbyId, username)
+            .pipe(tap(data => {
+                this.players = data.players
+                    .filter((player: Player) => !player.is_master)
+                    .map((player: Player) => player);
+                this.master = data.players.find((player: Player) => player.is_master)
+            }
+        ))
     }
 
     disconnect() {

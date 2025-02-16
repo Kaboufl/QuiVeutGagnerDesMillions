@@ -1,31 +1,38 @@
-<div class="flex flex-col items-center justify-center gap-8 p-8 bg-blue-600 text-white rounded-lg shadow-md">
-    <img class="w-32 h-32 object-contain mb-4" src="assets/images/Logo-Qui-veut-gagner-des-millions.png" alt="Logo">
-    
-    <div class="flex items-center justify-between w-full">
-      <h3 class="text-3xl font-semibold">Lobby de Jeu</h3>
-      <!-- Icône d'engrenage avec une action -->
-      <i *ngIf="currentplayer.is_master" class="fas fa-cogs text-white text-3xl cursor-pointer" (click)="toggleSettingsPopup()"></i>
-    </div>
-    
-    <ul class="players-list w-full space-y-4">
-      <li *ngFor="let player of players" class="player-item bg-gray-800 p-4 rounded-lg shadow-lg flex justify-between items-center transition-all hover:bg-gray-700 hover:scale-105">
-        <div class="player-info flex items-center space-x-4">
-          <span class="player-username text-xl font-bold">{{ player.username }}</span>
-          <span class="player-status py-1 px-3 text-sm rounded-full"
-                [ngClass]="{'bg-green-500 text-white': player.is_master, 'bg-red-500 text-white': !player.is_master}">
-            {{ player.is_master ? 'Master' : 'Joueur' }}
-          </span>
+<div class="flex flex-col items-center justify-center gap-8 p-8 bg-[#685ca880] backdrop-blur-xl text-white rounded-lg shadow-md">
+    <img class="w-32 h-32 object-contain" src="assets/images/Logo-Qui-veut-gagner-des-millions.png" alt="Logo">
+
+    <div class="w-full flex flex-col items-stretch justify-center" [ngSwitch]="isLobbyJoined">
+        <div *ngSwitchCase="false" class="flex flex-row justify-center items-center gap-4">
+            <div>
+                <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Saisissez votre nom d'utilisateur</label>
+                <input hlmInput type="text" id="username" [(ngModel)]="username" placeholder="John" required />
+            </div>
+            <button hlmBtn (click)="joinLobby()">Rejoindre la partie</button>
         </div>
-        <div class="player-id text-sm text-gray-300">ID: {{ player.user_identifier }}</div>
-      </li>
-    </ul>
-  
-    <!-- QR Code sans texte au-dessus -->
-    <div class="mt-8 flex justify-center items-center">
-      <img [src]="qrCodeUrl" alt="QR Code pour rejoindre le lobby" class="w-48 h-48 rounded-lg shadow-lg border-4 border-blue-500">
+        <div *ngSwitchCase="true" class="flex flex-col items-center justify-center gap-4">
+            <div *ngIf="master" (click)="logPlayer()">
+                Présenté par <span class="font-bold">{{ master.username }}</span>
+            </div>
+        
+            <div class="flex items-center justify-center text-orange-600 w-full font-copperplate">
+                <h3 class="text-3xl font-semibold">
+                    <span [ngPlural]="players.length">
+                        <ng-template ngPluralCase="0">Aucun joueur connecté</ng-template>
+                        <ng-template ngPluralCase="1">Un joueur connecté</ng-template>
+                        <ng-template ngPluralCase="other">{{ players.length }} joueurs connectés</ng-template>
+                    </span>
+                </h3>
+            </div>
+            
+            <ul class="players-list w-full space-y-4 flex flex-col items-center">
+                <li *ngFor="let player of players" class="">
+                    <div class="player-info answer-button flex items-center space-x-4">
+                        <span class="player-username text-xl font-bold">{{ player.username }}</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
-  </div>
-  
-  <!-- Appel au composant de la popup -->
-  <app-popup-edit-game [showSettingsPopup]="showSettingsPopup" (closePopup)="toggleSettingsPopup()"></app-popup-edit-game>
-  
+
+    
+</div>
