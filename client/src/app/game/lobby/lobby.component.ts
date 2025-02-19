@@ -8,12 +8,14 @@ import { PopupEditGameComponent } from '../popup-edit-game/popup-edit-game.compo
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
+import { GameStartComponent } from '../game-start/game-start.component';
+import { SocketService } from '../../../../services/Socket.service';
 
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
   styleUrls: ['./lobby.component.css'],
-  imports : [CommonModule, PopupEditGameComponent, FormsModule, HlmButtonDirective, HlmInputDirective]
+  imports : [CommonModule, PopupEditGameComponent, FormsModule, HlmButtonDirective, HlmInputDirective, GameStartComponent]
 })
 export class LobbyComponent implements OnInit {
 
@@ -25,33 +27,45 @@ export class LobbyComponent implements OnInit {
 
   public players: Player[] = [];
   public currentplayer!: Player;
-  public showSettingsPopup = false; // Etat pour gérer l'affichage de la popup
-  public qrCodeUrl: string = '';  // URL pour le QR code
+  public showSettingsPopup = false;
+  public qrCodeUrl: string = '';  
   public master!: Player;
+  GameStart: boolean = false;
+  Questions: any[]= [];
 
-  constructor(private gameService: GameService) {}
+  constructor(private gameService: GameService, private socketService : SocketService) {}
 
   ngOnInit(): void {
-    this.gameService.listenToRoomClosed().subscribe({
-      next: (data) => {
-        console.log('La salle a été fermée :', data);
-        alert(data.message);
-        this.router.navigate(['/']);
-      },
-      error: (err) => {
-        console.error('Erreur lors de la réception de l\'événement room-closed :', err);
-      }
+    const lobbyId = this.route.snapshot.paramMap.get('lobby_id');
+    if (lobbyId) {
+        this.generateQrCodeUrl(lobbyId);
+    }
+
+    // Écoute l'événement 'game-started'
+    this.socketService.listenToGameStarted((data) => {
+        console.log('Le jeu a commencé!', data);
+        this.GameStart = true; // Met à jour l'état du jeu
+        this.Questions = [data]; // Met à jour les questions
     });
 
-    const lobbyId = this.route.snapshot.paramMap.get('lobby_id');
+    // Écoute l'événement 'room-closed'
+    this.gameService.listenToRoomClosed().subscribe({
+        next: (data) => {
+            console.log('La salle a été fermée :', data);
+            alert(data.message);
+            this.router.navigate(['/']);
+        },
+        error: (err) => {
+            console.error('Erreur lors de la réception de l\'événement room-closed :', err);
+        },
+    });
+
     this.gameService.lobbyId = lobbyId || '';
-      
     console.log('Lobby ID:', lobbyId);
-  }
+}
 
   generateQrCodeUrl(lobbyId: string): void {
     const baseUrl = `${window.location.origin}/game/${lobbyId}`;
-    // Générer le QR code
     QRCode.toDataURL(baseUrl, (err, url) => {
       if (err) {
         console.error('Erreur lors de la génération du QR code:', err);
@@ -85,5 +99,23 @@ export class LobbyComponent implements OnInit {
 
   logPlayer() {
     console.log(this.gameService.player());
+  }
+
+  startGame() {    
+    if (this.gameService.lobbyId) {
+      console.log('Start game pour la salle:', this.gameService.lobbyId);
+      this.gameService.startGame().subscribe({
+        next: (data) => {
+          console.log('Game started:', data);
+          // this.GameStart = true
+          // this.Questions = data
+        },
+        error: (err) => {
+          console.error('Erreur lors du démarrage du jeu:', err);
+        }
+      });
+    } else {
+      console.error('Lobby ID manquant');
+    }
   }
 }

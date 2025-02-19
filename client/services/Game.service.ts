@@ -4,7 +4,6 @@ import Player from "../models/player";
 import { Observable, tap } from "rxjs";
 import { DataService } from "./Data.service";
 
-
 @Injectable({
     providedIn: 'root'
 })
@@ -42,6 +41,19 @@ export class GameService {
                 this.master = data.players.find((player: Player) => player.is_master)
             }
         ))
+    }
+
+    startGame(): Observable<any> {
+        if (!this.lobbyId) {
+            throw new Error('Aucune salle de jeu n\'est définie.');
+        }
+        console.log()
+        return this.apiService.startGame(this.lobbyId)
+            .pipe(
+                tap(response => {
+                    console.log('Jeu démarré avec succès:', response);
+                })
+            );
     }
 
     disconnect() {

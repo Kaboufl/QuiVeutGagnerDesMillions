@@ -14,6 +14,11 @@ export class DataService {
     return this.http.get(`${this.baseURL}/${endpoint}`);
   }
 
+  startGame(roomId: string): Observable<any> {
+    console.log('Démarrage du jeu pour la salle:', roomId);
+    return this.http.post(`${this.baseURL}/start-game`, { roomId });
+}
+
   requestLobby(): Observable<any> {
     return this.http.post(`${this.baseURL}/request-room`, {});
   }

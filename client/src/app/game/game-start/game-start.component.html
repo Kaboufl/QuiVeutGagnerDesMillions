@@ -1,0 +1,44 @@
+<div class="quiz-container mx-auto p-6 max-w-lg bg-white rounded-lg shadow-lg">
+  <!-- Timer et barre de progression -->
+  <div class="timer-container mb-6">
+    <div class="timer text-2xl font-bold text-center mb-2">
+      <span id="timer">{{ timer }}</span> secondes restantes
+    </div>
+    <div class="progress-bar-container w-full h-2 bg-gray-300 rounded-full">
+      <div class="progress-bar h-full bg-green-500 rounded-full" [style.width.%]="progressBarWidth"></div>
+    </div>
+  </div>
+
+  <!-- Question -->
+  <div class="question-container mb-6">
+    <p class="text-lg font-semibold"><strong>Question:</strong> {{ Questions[0].question.question }}</p>
+  </div>
+
+  <!-- Réponses -->
+  <div class="answers-container space-y-4">
+    <button (click)="answer(1)" 
+            [ngClass]="{'bg-green-500': selectedAnswer === 1}" 
+            class="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center">
+      <span>{{ Questions[0].question.reponse1 }}</span>
+      <i *ngIf="selectedAnswer === 1" class="ml-2 text-white fa fa-check"></i> <!-- Icone check -->
+    </button>
+    <button (click)="answer(2)" 
+            [ngClass]="{'bg-green-500': selectedAnswer === 2}" 
+            class="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center">
+      <span>{{ Questions[0].question.reponse2 }}</span>
+      <i *ngIf="selectedAnswer === 2" class="ml-2 text-white fa fa-check"></i> <!-- Icone check -->
+    </button>
+    <button (click)="answer(3)" 
+            [ngClass]="{'bg-green-500': selectedAnswer === 3}" 
+            class="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center">
+      <span>{{ Questions[0].question.reponse3 }}</span>
+      <i *ngIf="selectedAnswer === 3" class="ml-2 text-white fa fa-check"></i> <!-- Icone check -->
+    </button>
+    <button (click)="answer(4)" 
+            [ngClass]="{'bg-green-500': selectedAnswer === 4}" 
+            class="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center">
+      <span>{{ Questions[0].question.reponse4 }}</span>
+      <i *ngIf="selectedAnswer === 4" class="ml-2 text-white fa fa-check"></i> <!-- Icone check -->
+    </button>
+  </div>
+</div>

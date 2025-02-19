@@ -15,6 +15,10 @@ export class SocketService {
     
   }
 
+  listenToGameStarted(callback: (data: any) => void): void {
+    this.socket.on('game-started', callback);
+}
+
   sendRoom(roomName: string, questionnaireId: string) {
     this.socket.emit('room', { roomName, questionnaireId });
   }

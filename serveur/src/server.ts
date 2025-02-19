@@ -13,7 +13,7 @@ const port = 3000;
 const corsOptions = {
     origin: 'http://localhost:4200',
     optionsSuccessStatus: 200
-}
+};
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -22,6 +22,8 @@ const io = new Server(server, {
         methods: ["GET", "POST"]
     }
 });
+
+app.use(express.json()); // Pour parser les requêtes JSON
 
 app.get('/', cors(), (req: Request, res: Response) => {
     res.json({ message: `Hello World!` });
@@ -37,7 +39,42 @@ app.post('/request-room', (req: Request, res: Response) => {
     });
 
     res.json({ "lobbyId": roomName });
-})
+});
+
+app.post('/start-game', async (req: Request, res: Response): Promise<void> => {
+    const { roomId } = req.body;
+
+    console.log('roomId reçu:', roomId);
+
+    try {
+        const randomQuestion = await db('questions').orderByRaw('RAND()').limit(1).first();
+        console.log('Question aléatoire:', randomQuestion);
+
+        if (!randomQuestion) {
+            res.status(404).json({ message: 'Aucune question disponible' });
+            return;
+        }
+
+        await db('room_questions').insert({
+            room_id: roomId,
+            question_id: randomQuestion.id,
+        });
+
+        // Émettre à tous les joueurs dans la room
+        io.to(roomId).emit('game-started', {
+            message: 'Le jeu a commencé!',
+            question: randomQuestion,
+        });
+
+        console.log(`Le jeu a commencé pour la salle ${roomId} avec la question ${randomQuestion.id}`);
+        res.status(200).json({ message: 'Le jeu a commencé!', question: randomQuestion });
+    } catch (error) {
+        console.error('Erreur lors du démarrage du jeu:', error);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+});
+
+
 
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -85,8 +122,7 @@ io.on('connection', (socket) => {
                 user_identifier: socket.id,
                 is_master: isMaster
             });
-            
-    
+
             const playerIds = Array.from(io.sockets.adapter.rooms.get(lobbyId) || []);
             const players = await Promise.all(
                 playerIds.map(async (clientId) => {
@@ -105,8 +141,6 @@ io.on('connection', (socket) => {
             socket.emit('no-room', { message: 'No such room' });
         }
     });
-    
-    
 
     socket.on('disconnect', async () => {
         const request = db('players').where('user_identifier', socket.id);
@@ -132,11 +166,7 @@ io.on('connection', (socket) => {
             console.log(`Room ${roomId} has been closed because the master player disconnected.`);
         }
     });
-    
 });
-
-
-
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
