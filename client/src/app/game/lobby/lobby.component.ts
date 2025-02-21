@@ -30,8 +30,8 @@ export class LobbyComponent implements OnInit {
   public showSettingsPopup = false;
   public qrCodeUrl: string = '';  
   public master!: Player;
+  public isMaster = computed(() => this.master?.username === this.username);
   GameStart: boolean = false;
-  Questions: any[]= [];
 
   constructor(private gameService: GameService, private socketService : SocketService) {}
 
@@ -41,12 +41,12 @@ export class LobbyComponent implements OnInit {
         this.generateQrCodeUrl(lobbyId);
     }
 
-    // Écoute l'événement 'game-started'
-    this.socketService.listenToGameStarted((data) => {
-        console.log('Le jeu a commencé!', data);
-        this.GameStart = true; // Met à jour l'état du jeu
-        this.Questions = [data]; // Met à jour les questions
-    });
+    this.gameService.listenToGameStart().subscribe({
+      next: data => {
+        console.log('Le jeu a commencé ! ', data);
+        this.GameStart = true;
+      }
+    })
 
     // Écoute l'événement 'room-closed'
     this.gameService.listenToRoomClosed().subscribe({

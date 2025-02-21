@@ -3,4 +3,5 @@ export default interface Player {
     id: string
     username: string
     is_master : boolean
+    answers: number[]
 }

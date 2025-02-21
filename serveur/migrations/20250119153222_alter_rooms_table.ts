@@ -10,5 +10,10 @@ export async function up(knex: Knex): Promise<void> {
 
 
 export async function down(knex: Knex): Promise<void> {
+    return knex.schema
+        .alterTable('rooms', table => {
+            table.dropForeign('master_id');
+            table.dropColumn('master_id');
+        })
 }
 

@@ -36,11 +36,11 @@
                 <img [src]="qrCodeUrl" alt="QR Code pour rejoindre le lobby" class="w-48 h-48 rounded-lg shadow-lg border-4 border-blue-500">
               </div>
             <br>
-            <button *ngIf="master && players.length > 0" hlmBtn (click)="startGame()">Commencer la partie</button>
+            <button *ngIf="isMaster() && players.length > 0" hlmBtn (click)="startGame()">Commencer la partie</button>
         </div>
     </div>
 </div>
 
 <div *ngIf="GameStart">
-    <app-game-start [Questions]="Questions"></app-game-start>
+    <app-game-start></app-game-start>
 </div>

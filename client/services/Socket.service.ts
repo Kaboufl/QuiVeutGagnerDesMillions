@@ -15,8 +15,12 @@ export class SocketService {
     
   }
 
-  listenToGameStarted(callback: (data: any) => void): void {
-    this.socket.on('game-started', callback);
+  listenToGameStarted(): Observable<any> {
+    return new Observable((observer) => {
+      this.socket.on('game-started', (data: any) => {
+        observer.next(data);
+      })
+    })
 }
 
   sendRoom(roomName: string, questionnaireId: string) {
@@ -42,8 +46,7 @@ export class SocketService {
       .on('playerInfo', (data: any) => {
         console.log('Informations du joueur reçues :', data);
         observer.next(data);  // Envoie les données aux abonnés
-      }
-      );
+      });
   
       return () => {
         this.socket.off('no-room');
@@ -53,7 +56,23 @@ export class SocketService {
       
     });
   }
-  
+
+  answerQuestion(question:number, answer: number): Observable<any> {
+    return new Observable((observer) => {
+      this.socket.emit('answer-question', {
+        questionId: question,
+        answer: answer
+      });
+    });
+  }
+
+  listenForAnswers(): Observable<any> {
+    return new Observable((observer) => {
+      this.socket.on('question-answered', (data: any) => {
+        observer.next(data);
+      })
+    })
+  }  
 
   disconnect() {
     this.socket.disconnect();
