@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Input, OnInit, Signal, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GameService } from '../../../../services/Game.service';
 import Question from '../../../../models/question';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-game-start',
@@ -18,6 +18,8 @@ export class GameStartComponent implements OnInit {
   isAnswerable: boolean = true;
   isAnswerSelected: boolean = false; // Indicateur pour savoir si une réponse a été sélectionnée
   currentQuestion = new BehaviorSubject<Question | null>(null);
+  players : any[] = [];
+  allAnswers: { [questionId: number]: { [playerId: string]: { answer: number, player: string, questionId: number } } } = {}; // Structure pour stocker toutes les réponses, y compris l'ID de la question
 
   constructor(private gameService: GameService) {
     this.updateCurrentQuestion();
@@ -25,32 +27,69 @@ export class GameStartComponent implements OnInit {
       next: data => {
         this.updateCurrentQuestion();
       }
-    })
+    });
   }
 
   ngOnInit(): void {
+    this.players = this.gameService.players;
     console.log('Questions:', this.gameService.questions);
     this.startTimer();
   }
-  
 
   startTimer(): void {
-    // Mise à jour de la barre de progression et du timer toutes les secondes
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+
     const timer = this.timer * 10;
     let progress = timer;
+
+    const lastAnswers: { [playerId: string]: { player: string, answer: number, question: number } } = {};
+
     const interval = setInterval(() => {
       progress--;
-      this.progressBarWidth = (progress / timer) * 100; // Mise à jour de la barre de progression
+      this.progressBarWidth = (progress / timer) * 100;
+
+      this.timer = Math.ceil(progress / 10);
+
+      this.gameService.listenForAnswer().subscribe(data => {
+        const questionId = this.gameService.questions[this.gameService.currentQuestionIndex].id;
+        if (!this.allAnswers[questionId]) {
+          this.allAnswers[questionId] = {};
+        }
+        this.allAnswers[questionId][data.player] = { 
+          answer: data.answer, 
+          player: data.player, 
+          questionId: questionId 
+        };
+        console.log(`Réponse mise à jour pour ${data.player}: ${data.answer} à la question ${questionId}`);
+        console.log('Toutes les réponses :', this.allAnswers);
+      });
+
       if (progress === 0) {
-        clearInterval(interval);  // Arrêt du timer à 0
+        clearInterval(interval);
         progress = 0;
         this.isAnswerable = false;
-        this.revealAnswers(); // Révéler les réponses à la fin du temps
+        this.revealAnswers();
+
+        const finalAnswers = Object.values(lastAnswers); 
+
+        console.log("Dernières réponses collectées : ", finalAnswers);
+        this.handleLastAnswers(finalAnswers);
+
         setTimeout(() => {
           this.nextQuestion();
         }, 2000);
       }
     }, 100);
+
+    this.interval = interval;
+  }
+
+  handleLastAnswers(lastAnswers: any[]): void {
+    lastAnswers.forEach(data => {
+      console.log(`Le joueur ${data.player} a répondu : ${data.answer} à la question ${data.question}`);
+    });
   }
 
   nextQuestion(): void {
@@ -58,18 +97,20 @@ export class GameStartComponent implements OnInit {
     this.selectedAnswer = null;
     this.isAnswerSelected = false;
     this.isAnswerable = true;
+    this.timer = 10; // Réinitialiser le timer
+    this.progressBarWidth = 100; // Réinitialiser la barre de progression
     this.updateCurrentQuestion();
     this.startTimer();
   }
 
   answer(selectedAnswer: number): void {
-    this.selectedAnswer = selectedAnswer; // Stocke la réponse sélectionnée
-    this.gameService.answerQuestion(selectedAnswer).subscribe(); // Envoie la réponse au serveur
+    this.selectedAnswer = selectedAnswer;
+    this.gameService.answerQuestion(selectedAnswer).subscribe();
     console.log('Réponse sélectionnée:', selectedAnswer);
   }
 
   revealAnswers(): void {
-    this.isAnswerSelected = true;  // Marque que le temps est écoulé et les réponses doivent être révélées
+    this.isAnswerSelected = true; 
   }
 
   private updateCurrentQuestion(): void {

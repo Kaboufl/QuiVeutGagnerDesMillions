@@ -18,13 +18,11 @@ export class GameService {
     
     public questions: Question[] = [];
     public currentQuestionIndex: number = 0;
-    public currentQuestion = computed(() => this.questions[this.currentQuestionIndex]);
-
     public username: string = '';
 
     constructor(
         private socketService: SocketService,
-        private apiService: DataService
+        private apiService: DataService,
     ) { }
 
     createLobby(): Observable<any> {
@@ -80,7 +78,8 @@ export class GameService {
     }
 
     answerQuestion(answer: number): Observable<any> {
-        return this.socketService.answerQuestion(this.currentQuestion().id, answer);
+        console.log('questionssssss', this.questions[this.currentQuestionIndex]);
+        return this.socketService.answerQuestion(this.questions[this.currentQuestionIndex].id,answer);
     }
     
     listenForAnswer(): Observable<any> {
@@ -89,7 +88,7 @@ export class GameService {
                 tap(data => {
                     console.log('Réponse reçue : ', data);
                     this.players.find(player => player.user_identifier === data.player)?.answers.push(data.answer);
-                    console.log(this.players);
+                    console.log("", this.players);
                 })
             )
     }
