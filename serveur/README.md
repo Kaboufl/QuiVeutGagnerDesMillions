@@ -23,3 +23,11 @@
 
 ## Conclusion
 Les migrations avec Knex permettent de gérer les modifications de schéma de base de données de manière organisée et versionnée, facilitant ainsi le développement et la maintenance de votre application.
+
+## Exécution des seeders
+
+1. Pour exécuter les seeders et remplir la base de données avec des données initiales, utilisez la commande :
+    ```sh
+    npx knex seed:run
+    ```
+
