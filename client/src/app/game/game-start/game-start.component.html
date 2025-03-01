@@ -11,7 +11,12 @@
 
   <!-- Question -->
   <div class="question-container mb-6">
-    <p class="text-lg font-semibold"><strong>Question:</strong> {{ currentQuestion.value!.question }}</p>
+    <div class="flex justify-between items-center mb-2">
+      <p class="text-lg font-semibold"><strong>Question:</strong> {{ currentQuestion.value!.question }}</p>
+      <span class="text-sm font-medium text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+        {{ gameService.currentQuestionIndex + 1 }}/{{ gameService.questions.length }}
+      </span>
+    </div>
   </div>
 
   <!-- Réponses -->
@@ -45,4 +50,58 @@
       <i *ngIf="selectedAnswer === 4" class="ml-2 text-white fa fa-check"></i> <!-- Icone check -->
     </button>
   </div>
+  <div class="ranking-container mt-6">
+    <h2 class="text-xl font-bold mb-4">Classement</h2>
+    <ul>
+      <li *ngFor="let playerId of getSortedPlayers(); let i = index" class="mb-2">
+        {{ i + 1 }}. {{ getPlayerUsername(playerId) }}: {{ scores[playerId] }} points
+      </li>
+    </ul>
+  </div>
 </div>
+
+<div *ngIf="isFinalRankingDisplayed" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
+  <div class="final-ranking-container bg-white rounded-lg p-8 shadow-xl w-11/12 max-w-lg">
+    <h2 class="text-3xl font-bold text-center mb-6 text-blue-600">Classement final</h2>
+    
+    <div class="mb-8">
+      <div *ngFor="let playerId of getSortedPlayers(); let i = index; let first = first" 
+           class="flex justify-between items-center p-4 mb-2 rounded-lg shadow"
+           [ngClass]="{
+             'bg-blue-100': i === 0, 
+             'bg-blue-200': i === 1, 
+             'bg-blue-50': i === 2,
+             'bg-white': i > 2
+           }">
+        <div class="flex items-center">
+          <span class="text-2xl font-bold mr-4 
+                      {{ i === 0 ? 'text-blue-600' : 
+                         i === 1 ? 'text-blue-500' : 
+                         i === 2 ? 'text-blue-500' : 'text-blue-500' }}">
+            <!-- Afficher le même rang pour les joueurs à égalité -->
+            {{ (i > 0 && scores[playerId] === scores[getSortedPlayers()[i-1]]) ? 
+                (i > 1 && scores[getSortedPlayers()[i-2]] === scores[getSortedPlayers()[i-1]]) ? 
+                    getRank(i-2) : getRank(i-1) : 
+                getRank(i) }}
+          </span>
+          <span class="text-xl">{{ getPlayerUsername(playerId) }}</span>
+          <span *ngIf="i > 0 && scores[playerId] === scores[getSortedPlayers()[i-1]]" 
+                class="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+            égalité
+          </span>
+        </div>
+        <span class="text-xl font-bold text-blue-600">{{ scores[playerId] }} points</span>
+      </div>
+    </div>
+    
+    <div class="text-center">
+      <button 
+        (click)="returnToHome()" 
+        class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
+        Retourner à l'accueil
+      </button>
+    </div>
+  </div>
+</div>
+
+

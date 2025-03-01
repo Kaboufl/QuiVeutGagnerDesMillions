@@ -93,6 +93,20 @@ export class GameService {
             )
     }
 
+    sendScoreUpdate(scores: {[playerId: string]: number}) {
+        console.log("GameService: envoi des scores", scores);
+        this.socketService.sendScoreUpdate(scores);
+    }
+
+    listenForScoreUpdates(): Observable<any> {
+        return this.socketService.listenForScoreUpdates()
+            .pipe(
+                tap(data => {
+                    console.log('Score update received:', data);
+                })
+            );
+    }
+
     disconnect() {
         this.socketService.disconnect()
     }

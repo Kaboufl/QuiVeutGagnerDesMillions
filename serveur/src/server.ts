@@ -175,8 +175,19 @@ io.on('connection', (socket) => {
             answer: answer,
             question: questionId
         });
-    })
+    });
+
+    socket.on('score-update', (scores) => {
+        console.log("Scores reçus du maître:", scores);
+        const roomName = Array.from(socket.rooms)[1]; 
+        if (roomName) {
+            // Envoyer les scores à tous les joueurs de la salle
+            io.to(roomName).emit('score-update', scores);
+            console.log(`Scores envoyés à la salle ${roomName}:`, scores);
+        }
+    });
 });
+
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);

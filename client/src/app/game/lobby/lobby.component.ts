@@ -88,6 +88,7 @@ export class LobbyComponent implements OnInit {
           this.isLobbyJoined = true;
           this.players = this.gameService.players;
           this.master = this.gameService.master;
+          console.log('Players:', this.players);
         },
         error: (err) => {
           console.error(err);

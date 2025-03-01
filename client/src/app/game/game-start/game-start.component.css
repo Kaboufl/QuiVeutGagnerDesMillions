@@ -1,0 +1,49 @@
+/* Dans client/src/app/game/game-start/game-start.component.css */
+.ranking-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.ranking-container {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 500px;
+  width: 80%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.ranking-list {
+  list-style: none;
+  padding: 0;
+}
+
+.ranking-item {
+  display: flex;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.rank {
+  font-weight: bold;
+  margin-right: 15px;
+  min-width: 30px;
+}
+
+.player-name {
+  flex-grow: 1;
+}
+
+.player-score {
+  font-weight: bold;
+  color: #007bff;
+}

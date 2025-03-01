@@ -91,4 +91,28 @@ export class SocketService {
     });
   }
   
+  sendScoreUpdate(scores: {[playerId: string]: number}) {
+    console.log("Envoi des scores:", scores);
+    this.socket.emit('score-update', scores); 
+  }
+
+  listenForScoreUpdates(): Observable<any> {
+    return new Observable(observer => {
+      this.socket.on('score-update', (data: any) => {
+        console.log("Scores reçus via socket:", data); 
+        observer.next(data);
+      });
+      
+      this.socket.on('final-score-update', (data: any) => {
+        console.log("Classement final reçu via socket:", data);
+        observer.next(data.scores);
+      });
+    });
+  }
+  
+  sendFinalScores(data: {scores: {[playerId: string]: number}, isFinal: boolean}) {
+    console.log("Envoi du classement final:", data);
+    this.socket.emit('final-score-update', data);
+  }
+  
 }
